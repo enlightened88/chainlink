@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"text/template"
 
@@ -107,7 +108,7 @@ func extractEventsAndStructs(abiJSON []byte) ([]SolEvent, []SolStruct, error) {
 
 			for i, input := range item.Inputs {
 				if input.Name == "" {
-					input.Name = "param" + fmt.Sprintf("%d", i+1)
+					input.Name = "param" + strconv.Itoa(i+1)
 				}
 				if input.Type == "tuple" && strings.Contains(input.InternalType, "struct") {
 					internalType := strings.TrimPrefix(input.InternalType, "struct ")

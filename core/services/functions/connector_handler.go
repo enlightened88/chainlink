@@ -14,6 +14,7 @@ import (
 
 	ethCommon "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 
@@ -76,7 +77,7 @@ func InternalId(sender []byte, requestId []byte) RequestID {
 
 func NewFunctionsConnectorHandler(pluginConfig *config.PluginConfig, signerKey *ecdsa.PrivateKey, storage s4.Storage, allowlist fallow.OnchainAllowlist, rateLimiter *hc.RateLimiter, subscriptions fsub.OnchainSubscriptions, listener FunctionsListener, offchainTransmitter OffchainTransmitter, lggr logger.Logger) (*functionsConnectorHandler, error) {
 	if signerKey == nil || storage == nil || allowlist == nil || rateLimiter == nil || subscriptions == nil || listener == nil || offchainTransmitter == nil {
-		return nil, fmt.Errorf("all dependencies must be non-nil")
+		return nil, errors.New("all dependencies must be non-nil")
 	}
 	allowedHeartbeatInitiators := make(map[string]struct{})
 	for _, initiator := range pluginConfig.AllowedHeartbeatInitiators {

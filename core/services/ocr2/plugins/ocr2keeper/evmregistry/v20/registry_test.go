@@ -1,7 +1,7 @@
 package evm
 
 import (
-	"fmt"
+	"errors"
 	"math/big"
 	"testing"
 	"time"
@@ -60,7 +60,7 @@ func TestGetActiveUpkeepKeys(t *testing.T) {
 			if test.ExpectedErr != nil {
 				assert.ErrorIs(t, err, test.ExpectedErr)
 			} else {
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 
 			if len(test.ExpectedKeys) > 0 {
@@ -100,7 +100,7 @@ func TestPollLogs(t *testing.T) {
 				OutputErr   error
 			}{
 				OutputBlock: 0,
-				OutputErr:   fmt.Errorf("test error output"),
+				OutputErr:   errors.New("test error output"),
 			},
 		},
 		{
@@ -151,7 +151,7 @@ func TestPollLogs(t *testing.T) {
 				InputStart: 250,
 				InputEnd:   500,
 				OutputLogs: []logpoller.Log{},
-				OutputErr:  fmt.Errorf("test output error"),
+				OutputErr:  errors.New("test output error"),
 			},
 		},
 		{
@@ -212,7 +212,7 @@ func TestPollLogs(t *testing.T) {
 			if test.ExpectedErr != nil {
 				assert.ErrorIs(t, err, test.ExpectedErr)
 			} else {
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 
 			var outputLogCount int

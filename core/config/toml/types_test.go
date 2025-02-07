@@ -101,7 +101,7 @@ func Test_validateDBURL(t *testing.T) {
 			url := testutils.MustParseURL(t, test.url)
 			err := validateDBURL(*url)
 			if test.wantErr == "" {
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			} else {
 				assert.EqualError(t, err, test.wantErr)
 			}

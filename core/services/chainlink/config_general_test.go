@@ -29,7 +29,7 @@ func TestTOMLGeneralConfig_Defaults(t *testing.T) {
 	assert.False(t, config.SolanaEnabled())
 	assert.False(t, config.StarkNetEnabled())
 	assert.False(t, config.TronEnabled())
-	assert.Equal(t, false, config.JobPipeline().ExternalInitiatorsEnabled())
+	assert.False(t, config.JobPipeline().ExternalInitiatorsEnabled())
 	assert.Equal(t, 15*time.Minute, config.WebServer().SessionTimeout().Duration())
 }
 
@@ -122,10 +122,10 @@ func TestConfig_LogSQL(t *testing.T) {
 	require.NoError(t, err)
 
 	config.SetLogSQL(true)
-	assert.Equal(t, config.Database().LogSQL(), true)
+	assert.True(t, config.Database().LogSQL())
 
 	config.SetLogSQL(false)
-	assert.Equal(t, config.Database().LogSQL(), false)
+	assert.False(t, config.Database().LogSQL())
 }
 
 //go:embed testdata/mergingsecretsdata/secrets-database.toml

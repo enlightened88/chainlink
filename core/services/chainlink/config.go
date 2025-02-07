@@ -433,7 +433,7 @@ var ErrInvalidSecrets = errors.New("invalid secrets")
 // Validate validates every consitutent secret and return an accumulated error
 func (s *Secrets) Validate() error {
 	if err := commonconfig.Validate(s); err != nil {
-		return fmt.Errorf("%w: %s", ErrInvalidSecrets, err)
+		return fmt.Errorf("%w: %w", ErrInvalidSecrets, err)
 	}
 	return nil
 }
@@ -455,7 +455,7 @@ func (s *Secrets) ValidateDB() error {
 	s.setDefaults()
 	v := &dbValidationType{s.Database}
 	if err := commonconfig.Validate(v); err != nil {
-		return fmt.Errorf("%w: %s", ErrInvalidSecrets, err)
+		return fmt.Errorf("%w: %w", ErrInvalidSecrets, err)
 	}
 	return nil
 }

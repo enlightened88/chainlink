@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strconv"
 	"strings"
 	"sync/atomic"
 	"testing"
@@ -224,7 +225,7 @@ func integration_MercuryV1(t *testing.T) {
 		oracles = append(oracles, confighelper.OracleIdentityExtra{
 			OracleIdentity: confighelper.OracleIdentity{
 				OnchainPublicKey:  offchainPublicKey,
-				TransmitAccount:   ocr2types.Account(fmt.Sprintf("%x", transmitter[:])),
+				TransmitAccount:   ocr2types.Account(hex.EncodeToString(transmitter[:])),
 				OffchainPublicKey: kb.OffchainPublicKey(),
 				PeerID:            peerID,
 			},
@@ -241,7 +242,7 @@ func integration_MercuryV1(t *testing.T) {
 		bridge := httptest.NewServer(http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 			b, herr := io.ReadAll(req.Body)
 			require.NoError(t, herr)
-			require.Equal(t, `{"data":{"from":"ETH","to":"USD"}}`, string(b))
+			require.JSONEq(t, `{"data":{"from":"ETH","to":"USD"}}`, string(b))
 
 			r := rand.Int63n(101)
 			if r > pError.Load() {
@@ -405,7 +406,7 @@ func integration_MercuryV1(t *testing.T) {
 			assert.GreaterOrEqual(t, currentBlock.Time(), reportElems["currentBlockTimestamp"].(uint64))
 			assert.NotEqual(t, common.Hash{}, common.Hash(reportElems["currentBlockHash"].([32]uint8)))
 			assert.LessOrEqual(t, int(reportElems["validFromBlockNum"].(uint64)), int(reportElems["currentBlockNum"].(uint64)))
-			assert.Less(t, int64(0), int64(reportElems["validFromBlockNum"].(uint64)))
+			assert.Positive(t, reportElems["validFromBlockNum"].(uint64))
 
 			t.Logf("oracle %x reported for feed %s (0x%x)", req.pk, feed.name, feed.id)
 
@@ -581,7 +582,7 @@ func integration_MercuryV2(t *testing.T) {
 		oracles = append(oracles, confighelper.OracleIdentityExtra{
 			OracleIdentity: confighelper.OracleIdentity{
 				OnchainPublicKey:  offchainPublicKey,
-				TransmitAccount:   ocr2types.Account(fmt.Sprintf("%x", transmitter[:])),
+				TransmitAccount:   ocr2types.Account(hex.EncodeToString(transmitter[:])),
 				OffchainPublicKey: kb.OffchainPublicKey(),
 				PeerID:            peerID,
 			},
@@ -598,7 +599,7 @@ func integration_MercuryV2(t *testing.T) {
 		bridge := httptest.NewServer(http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 			b, herr := io.ReadAll(req.Body)
 			require.NoError(t, herr)
-			require.Equal(t, `{"data":{"from":"ETH","to":"USD"}}`, string(b))
+			require.JSONEq(t, `{"data":{"from":"ETH","to":"USD"}}`, string(b))
 
 			r := rand.Int63n(101)
 			if r > pError.Load() {
@@ -871,7 +872,7 @@ func integration_MercuryV3(t *testing.T) {
 		oracles = append(oracles, confighelper.OracleIdentityExtra{
 			OracleIdentity: confighelper.OracleIdentity{
 				OnchainPublicKey:  offchainPublicKey,
-				TransmitAccount:   ocr2types.Account(fmt.Sprintf("%x", transmitter[:])),
+				TransmitAccount:   ocr2types.Account(hex.EncodeToString(transmitter[:])),
 				OffchainPublicKey: kb.OffchainPublicKey(),
 				PeerID:            peerID,
 			},
@@ -888,7 +889,7 @@ func integration_MercuryV3(t *testing.T) {
 		bridge := httptest.NewServer(http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 			b, herr := io.ReadAll(req.Body)
 			require.NoError(t, herr)
-			require.Equal(t, `{"data":{"from":"ETH","to":"USD"}}`, string(b))
+			require.JSONEq(t, `{"data":{"from":"ETH","to":"USD"}}`, string(b))
 
 			r := rand.Int63n(101)
 			if r > pError.Load() {
@@ -1167,7 +1168,7 @@ func integration_MercuryV4(t *testing.T) {
 		oracles = append(oracles, confighelper.OracleIdentityExtra{
 			OracleIdentity: confighelper.OracleIdentity{
 				OnchainPublicKey:  offchainPublicKey,
-				TransmitAccount:   ocr2types.Account(fmt.Sprintf("%x", transmitter[:])),
+				TransmitAccount:   ocr2types.Account(hex.EncodeToString(transmitter[:])),
 				OffchainPublicKey: kb.OffchainPublicKey(),
 				PeerID:            peerID,
 			},
@@ -1184,7 +1185,7 @@ func integration_MercuryV4(t *testing.T) {
 		bridge := httptest.NewServer(http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 			b, herr := io.ReadAll(req.Body)
 			require.NoError(t, herr)
-			require.Equal(t, `{"data":{"from":"ETH","to":"USD"}}`, string(b))
+			require.JSONEq(t, `{"data":{"from":"ETH","to":"USD"}}`, string(b))
 
 			r := rand.Int63n(101)
 			if r > pError.Load() {
@@ -1194,7 +1195,7 @@ func integration_MercuryV4(t *testing.T) {
 				if p != nil {
 					val = decimal.NewFromBigInt(p, 0).Div(decimal.NewFromInt(multiplier)).Add(decimal.NewFromInt(int64(i)).Div(decimal.NewFromInt(100))).String()
 				} else {
-					val = fmt.Sprintf("%d", marketStatus)
+					val = strconv.FormatUint(uint64(marketStatus), 10)
 				}
 
 				resp := fmt.Sprintf(`{"result": %s}`, val)

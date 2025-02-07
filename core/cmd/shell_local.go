@@ -660,14 +660,14 @@ func (s *Shell) RebroadcastTransactions(c *cli.Context) (err error) {
 	if c.IsSet("password") {
 		pwd, err2 := utils.PasswordFromFile(c.String("password"))
 		if err2 != nil {
-			return s.errorOut(fmt.Errorf("error reading password: %+v", err2))
+			return s.errorOut(fmt.Errorf("error reading password: %w", err2))
 		}
 		s.Config.SetPasswords(&pwd, nil)
 	}
 
 	err = s.Config.Validate()
 	if err != nil {
-		return s.errorOut(fmt.Errorf("error validating configuration: %+v", err))
+		return s.errorOut(fmt.Errorf("error validating configuration: %w", err))
 	}
 
 	err = keyStore.Unlock(ctx, s.Config.Password().Keystore())
@@ -856,7 +856,7 @@ func dropDanglingTestDBs(lggr logger.Logger, db *sqlx.DB) (err error) {
 			defer wg.Done()
 			for dbname := range ch {
 				lggr.Infof("Dropping old, dangling test database: %q", dbname)
-				gerr := cutils.JustError(db.Exec(fmt.Sprintf(`DROP DATABASE IF EXISTS %s`, dbname)))
+				gerr := cutils.JustError(db.Exec("DROP DATABASE IF EXISTS " + dbname))
 				errCh <- gerr
 			}
 		}()
@@ -888,7 +888,7 @@ func randomizeTestDBSequences(db *sqlx.DB) error {
 	schemas := pq.Array([]string{"public", "evm"})
 	seqRows, err := db.Query(`SELECT sequence_schema, sequence_name, minimum_value FROM information_schema.sequences WHERE sequence_schema IN ($1)`, schemas)
 	if err != nil {
-		return fmt.Errorf("%s: error fetching sequences: %s", failedToRandomizeTestDBSequencesError{}, err)
+		return fmt.Errorf("%s: error fetching sequences: %w", failedToRandomizeTestDBSequencesError{}, err)
 	}
 
 	defer seqRows.Close()
@@ -896,7 +896,7 @@ func randomizeTestDBSequences(db *sqlx.DB) error {
 		var sequenceSchema, sequenceName string
 		var minimumSequenceValue int64
 		if err = seqRows.Scan(&sequenceSchema, &sequenceName, &minimumSequenceValue); err != nil {
-			return fmt.Errorf("%s: failed scanning sequence rows: %s", failedToRandomizeTestDBSequencesError{}, err)
+			return fmt.Errorf("%s: failed scanning sequence rows: %w", failedToRandomizeTestDBSequencesError{}, err)
 		}
 
 		if sequenceName == "goose_migrations_id_seq" || sequenceName == "configurations_id_seq" {
@@ -971,11 +971,11 @@ func (s *Shell) RollbackDatabase(c *cli.Context) error {
 
 	db, err := newConnection(ctx, s.Config.Database())
 	if err != nil {
-		return fmt.Errorf("failed to initialize orm: %v", err)
+		return fmt.Errorf("failed to initialize orm: %w", err)
 	}
 
 	if err := migrate.Rollback(ctx, db.DB, version); err != nil {
-		return fmt.Errorf("migrateDB failed: %v", err)
+		return fmt.Errorf("migrateDB failed: %w", err)
 	}
 
 	return nil
@@ -986,12 +986,12 @@ func (s *Shell) VersionDatabase(_ *cli.Context) error {
 	ctx := s.ctx()
 	db, err := newConnection(ctx, s.Config.Database())
 	if err != nil {
-		return fmt.Errorf("failed to initialize orm: %v", err)
+		return fmt.Errorf("failed to initialize orm: %w", err)
 	}
 
 	version, err := migrate.Current(ctx, db.DB)
 	if err != nil {
-		return fmt.Errorf("migrateDB failed: %v", err)
+		return fmt.Errorf("migrateDB failed: %w", err)
 	}
 
 	s.Logger.Infof("Database version: %v", version)
@@ -1003,11 +1003,11 @@ func (s *Shell) StatusDatabase(_ *cli.Context) error {
 	ctx := s.ctx()
 	db, err := newConnection(ctx, s.Config.Database())
 	if err != nil {
-		return fmt.Errorf("failed to initialize orm: %v", err)
+		return fmt.Errorf("failed to initialize orm: %w", err)
 	}
 
 	if err = migrate.Status(ctx, db.DB); err != nil {
-		return fmt.Errorf("Status failed: %v", err)
+		return fmt.Errorf("Status failed: %w", err)
 	}
 	return nil
 }
@@ -1020,7 +1020,7 @@ func (s *Shell) CreateMigration(c *cli.Context) error {
 	}
 	db, err := newConnection(ctx, s.Config.Database())
 	if err != nil {
-		return fmt.Errorf("failed to initialize orm: %v", err)
+		return fmt.Errorf("failed to initialize orm: %w", err)
 	}
 
 	migrationType := c.String("type")
@@ -1029,7 +1029,7 @@ func (s *Shell) CreateMigration(c *cli.Context) error {
 	}
 
 	if err = migrate.Create(db.DB, c.Args().First(), migrationType); err != nil {
-		return fmt.Errorf("Status failed: %v", err)
+		return fmt.Errorf("Status failed: %w", err)
 	}
 	return nil
 }
@@ -1115,7 +1115,7 @@ func dropAndCreateDB(parsed url.URL, force bool) (err error) {
 	parsed.Path = "/template1"
 	db, err := sql.Open(pgcommon.DriverPostgres, parsed.String())
 	if err != nil {
-		return fmt.Errorf("unable to open postgres database for creating test db: %+v", err)
+		return fmt.Errorf("unable to open postgres database for creating test db: %w", err)
 	}
 	defer func() {
 		if cerr := db.Close(); cerr != nil {
@@ -1126,16 +1126,16 @@ func dropAndCreateDB(parsed url.URL, force bool) (err error) {
 		// supports pg < 13. https://stackoverflow.com/questions/17449420/postgresql-unable-to-drop-database-because-of-some-auto-connections-to-db
 		_, err = db.Exec(fmt.Sprintf("SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '%s';", dbname))
 		if err != nil {
-			return fmt.Errorf("unable to terminate connections to postgres database: %v", err)
+			return fmt.Errorf("unable to terminate connections to postgres database: %w", err)
 		}
 	}
 	_, err = db.Exec(fmt.Sprintf(`DROP DATABASE IF EXISTS "%s"`, dbname))
 	if err != nil {
-		return fmt.Errorf("unable to drop postgres database: %v", err)
+		return fmt.Errorf("unable to drop postgres database: %w", err)
 	}
 	_, err = db.Exec(fmt.Sprintf(`CREATE DATABASE "%s"`, dbname))
 	if err != nil {
-		return fmt.Errorf("unable to create postgres database: %v", err)
+		return fmt.Errorf("unable to create postgres database: %w", err)
 	}
 	return nil
 }
@@ -1143,11 +1143,11 @@ func dropAndCreateDB(parsed url.URL, force bool) (err error) {
 func dropAndCreatePristineDB(db *sqlx.DB, template string) (err error) {
 	_, err = db.Exec(fmt.Sprintf(`DROP DATABASE IF EXISTS "%s"`, testdb.PristineDBName))
 	if err != nil {
-		return fmt.Errorf("unable to drop postgres database: %v", err)
+		return fmt.Errorf("unable to drop postgres database: %w", err)
 	}
 	_, err = db.Exec(fmt.Sprintf(`CREATE DATABASE "%s" WITH TEMPLATE "%s"`, testdb.PristineDBName, template))
 	if err != nil {
-		return fmt.Errorf("unable to create postgres database: %v", err)
+		return fmt.Errorf("unable to create postgres database: %w", err)
 	}
 	return nil
 }
@@ -1155,11 +1155,11 @@ func dropAndCreatePristineDB(db *sqlx.DB, template string) (err error) {
 func migrateDB(ctx context.Context, config dbConfig) error {
 	db, err := newConnection(ctx, config)
 	if err != nil {
-		return fmt.Errorf("failed to initialize orm: %v", err)
+		return fmt.Errorf("failed to initialize orm: %w", err)
 	}
 
 	if err = migrate.Migrate(ctx, db.DB); err != nil {
-		return fmt.Errorf("migrateDB failed: %v", err)
+		return fmt.Errorf("migrateDB failed: %w", err)
 	}
 	return db.Close()
 }
@@ -1167,13 +1167,13 @@ func migrateDB(ctx context.Context, config dbConfig) error {
 func downAndUpDB(ctx context.Context, cfg dbConfig, baseVersionID int64) error {
 	db, err := newConnection(ctx, cfg)
 	if err != nil {
-		return fmt.Errorf("failed to initialize orm: %v", err)
+		return fmt.Errorf("failed to initialize orm: %w", err)
 	}
 	if err = migrate.Rollback(ctx, db.DB, null.IntFrom(baseVersionID)); err != nil {
-		return fmt.Errorf("test rollback failed: %v", err)
+		return fmt.Errorf("test rollback failed: %w", err)
 	}
 	if err = migrate.Migrate(ctx, db.DB); err != nil {
-		return fmt.Errorf("second migrateDB failed: %v", err)
+		return fmt.Errorf("second migrateDB failed: %w", err)
 	}
 	return db.Close()
 }
@@ -1191,9 +1191,9 @@ func dumpSchema(dbURL url.URL) (string, error) {
 	if err != nil {
 		var ee *exec.ExitError
 		if errors.As(err, &ee) {
-			return "", fmt.Errorf("failed to dump schema: %v\n%s", err, string(ee.Stderr))
+			return "", fmt.Errorf("failed to dump schema: %w\n%s", err, string(ee.Stderr))
 		}
-		return "", fmt.Errorf("failed to dump schema: %v", err)
+		return "", fmt.Errorf("failed to dump schema: %w", err)
 	}
 	return string(schema), nil
 }
@@ -1214,7 +1214,7 @@ func checkSchema(dbURL url.URL, prevSchema string) error {
 func insertFixtures(dbURL url.URL, pathToFixtures string) (err error) {
 	db, err := sql.Open(pgcommon.DriverPostgres, dbURL.String())
 	if err != nil {
-		return fmt.Errorf("unable to open postgres database for creating test db: %+v", err)
+		return fmt.Errorf("unable to open postgres database for creating test db: %w", err)
 	}
 	defer func() {
 		if cerr := db.Close(); cerr != nil {
@@ -1253,7 +1253,7 @@ func (s *Shell) RemoveBlocks(c *cli.Context) error {
 	cfg := s.Config
 	err := cfg.Validate()
 	if err != nil {
-		return s.errorOut(fmt.Errorf("error validating configuration: %+v", err))
+		return s.errorOut(fmt.Errorf("error validating configuration: %w", err))
 	}
 
 	lggr := logger.Sugared(s.Logger.Named("RemoveBlocks"))

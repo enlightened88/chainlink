@@ -79,8 +79,8 @@ func TestJSON_Merge(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			j1 := cltest.JSONFromString(t, test.original)
-			j2 := cltest.JSONFromString(t, test.input)
+			j1 := cltest.JSONFromString(t, "%s", test.original)
+			j2 := cltest.JSONFromString(t, "%s", test.input)
 
 			merged, err := models.Merge(j1, j2)
 			if test.wantError {
