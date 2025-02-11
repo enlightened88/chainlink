@@ -1291,24 +1291,6 @@ func (ins *Insecure) setFrom(f *Insecure) {
 	}
 }
 
-type MercuryCache struct {
-	LatestReportTTL      *commonconfig.Duration
-	MaxStaleAge          *commonconfig.Duration
-	LatestReportDeadline *commonconfig.Duration
-}
-
-func (mc *MercuryCache) setFrom(f *MercuryCache) {
-	if v := f.LatestReportTTL; v != nil {
-		mc.LatestReportTTL = v
-	}
-	if v := f.MaxStaleAge; v != nil {
-		mc.MaxStaleAge = v
-	}
-	if v := f.LatestReportDeadline; v != nil {
-		mc.LatestReportDeadline = v
-	}
-}
-
 type MercuryTLS struct {
 	CertFile *string
 }
@@ -1359,14 +1341,12 @@ func (m *MercuryTransmitter) setFrom(f *MercuryTransmitter) {
 }
 
 type Mercury struct {
-	Cache          MercuryCache       `toml:",omitempty"`
 	TLS            MercuryTLS         `toml:",omitempty"`
 	Transmitter    MercuryTransmitter `toml:",omitempty"`
 	VerboseLogging *bool              `toml:",omitempty"`
 }
 
 func (m *Mercury) setFrom(f *Mercury) {
-	m.Cache.setFrom(&f.Cache)
 	m.TLS.setFrom(&f.TLS)
 	m.Transmitter.setFrom(&f.Transmitter)
 	if v := f.VerboseLogging; v != nil {

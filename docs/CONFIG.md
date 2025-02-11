@@ -1907,45 +1907,6 @@ VerboseLogging enables detailed logging of mercury/LLO operations. These logs
 can be expensive since they may serialize large structs, so they are disabled
 by default.
 
-## Mercury.Cache
-```toml
-[Mercury.Cache]
-LatestReportTTL = "1s" # Default
-MaxStaleAge = "1h" # Default
-LatestReportDeadline = "5s" # Default
-```
-Mercury.Cache controls settings for the price retrieval cache querying a mercury server
-
-### LatestReportTTL
-```toml
-LatestReportTTL = "1s" # Default
-```
-LatestReportTTL controls how "stale" we will allow a price to be e.g. if
-set to 1s, a new price will always be fetched if the last result was
-from 1 second ago or older.
-
-Another way of looking at it is such: the cache will _never_ return a
-price that was queried from now-LatestReportTTL or before.
-
-Setting to zero disables caching entirely.
-
-### MaxStaleAge
-```toml
-MaxStaleAge = "1h" # Default
-```
-MaxStaleAge is that maximum amount of time that a value can be stale
-before it is deleted from the cache (a form of garbage collection).
-
-This should generally be set to something much larger than
-LatestReportTTL. Setting to zero disables garbage collection.
-
-### LatestReportDeadline
-```toml
-LatestReportDeadline = "5s" # Default
-```
-LatestReportDeadline controls how long to wait for a response from the
-mercury server before retrying. Setting this to zero will wait indefinitely.
-
 ## Mercury.TLS
 ```toml
 [Mercury.TLS]
@@ -1962,7 +1923,7 @@ CertFile is the path to a PEM file of trusted root certificate authority certifi
 ## Mercury.Transmitter
 ```toml
 [Mercury.Transmitter]
-Protocol = "wsrpc" # Default
+Protocol = "grpc" # Default
 TransmitQueueMaxSize = 100_000 # Default
 TransmitTimeout = "5s" # Default
 TransmitConcurrency = 100 # Default
@@ -1973,12 +1934,11 @@ Mercury.Transmitter controls settings for the mercury transmitter
 
 ### Protocol
 ```toml
-Protocol = "wsrpc" # Default
+Protocol = "grpc" # Default
 ```
 Protocol is the protocol to use for the transmitter.
 
-Options are either:
-- "wsrpc" for the legacy websocket protocol
+Options are currently:
 - "grpc" for the gRPC protocol
 
 ### TransmitQueueMaxSize
