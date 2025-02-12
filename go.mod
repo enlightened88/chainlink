@@ -12,6 +12,7 @@ require (
 	github.com/avast/retry-go/v4 v4.6.0
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2
 	github.com/cometbft/cometbft v0.37.5
+	github.com/coreos/go-oidc/v3 v3.11.0
 	github.com/cosmos/cosmos-sdk v0.47.11
 	github.com/danielkov/gin-helmet v0.0.0-20171108135313-1387e224435e
 	github.com/deckarep/golang-set/v2 v2.6.0
@@ -107,6 +108,7 @@ require (
 	golang.org/x/exp v0.0.0-20240808152545-0cdaa3abc0fa
 	golang.org/x/mod v0.20.0
 	golang.org/x/net v0.29.0
+	golang.org/x/oauth2 v0.22.0
 	golang.org/x/sync v0.8.0
 	golang.org/x/term v0.24.0
 	golang.org/x/text v0.18.0
@@ -199,6 +201,7 @@ require (
 	github.com/gedex/inflector v0.0.0-20170307190818-16278e9db813 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-asn1-ber/asn1-ber v1.5.5 // indirect
+	github.com/go-jose/go-jose/v4 v4.0.2 // indirect
 	github.com/go-json-experiment/json v0.0.0-20231102232822-2e55bd4e08b0 // indirect
 	github.com/go-kit/kit v0.12.0 // indirect
 	github.com/go-kit/log v0.2.1 // indirect

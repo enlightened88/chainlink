@@ -366,11 +366,11 @@ func NewApplication(opts ApplicationOpts) (Application, error) {
 		if err != nil {
 			return nil, errors.Wrap(err, "NewApplication: failed to initialize LDAP Authentication module")
 		}
-		sessionReaper = ldapauth.NewLDAPServerStateSync(opts.DS, cfg.Database(), cfg.WebServer().LDAP(), globalLogger)
+		sessionReaper = ldapauth.NewLDAPServerStateSync(sqlxDB, cfg.WebServer().LDAP(), globalLogger)
 	case sessions.OIDCAuth:
 		var err error
 		authenticationProvider, err = oidcauth.NewOIDCAuthenticator(
-			opts.DS, cfg.Database(), cfg.WebServer().OIDC(), globalLogger, auditLogger,
+			opts.DS, cfg.WebServer().OIDC(), globalLogger, auditLogger,
 		)
 		if err != nil {
 			return nil, errors.Wrap(err, "NewApplication: failed to initialize OIDC Authentication module")
