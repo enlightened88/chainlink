@@ -141,6 +141,7 @@ type Engine struct {
 
 	clock       clockwork.Clock
 	ratelimiter *ratelimiter.RateLimiter
+	meterReport *MeteringReport
 }
 
 func (e *Engine) Start(_ context.Context) error {
@@ -545,6 +546,8 @@ func generateExecutionID(workflowID, eventID string) (string, error) {
 
 // startExecution kicks off a new workflow execution when a trigger event is received.
 func (e *Engine) startExecution(ctx context.Context, executionID string, event *values.Map) error {
+	e.meterReport = NewMeteringReport()
+
 	lggr := e.logger.With("event", event, platform.KeyWorkflowExecutionID, executionID)
 	lggr.Debug("executing on a trigger event")
 	ec := &store.WorkflowExecution{
@@ -615,6 +618,12 @@ func (e *Engine) handleStepUpdate(ctx context.Context, stepUpdate store.Workflow
 	if err != nil {
 		return err
 	}
+
+	e.meterReport.AddStep(MeteringReportStepRef(stepUpdate.ExecutionID), MeteringReportStep{
+		Peer2PeerID: "TODO",
+		SpendUnit:   "TODO",
+		SpendValue:  "TODO",
+	})
 
 	if workflowIsFullyProcessed {
 		switch status {
