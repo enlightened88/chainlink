@@ -20,7 +20,7 @@ import (
 
 type Delegate struct {
 	registry       core.CapabilitiesRegistry
-	secretsFetcher secretsFetcher
+	secretsFetcher SecretsFor
 	logger         logger.Logger
 	store          store.Store
 	ratelimiter    *ratelimiter.RateLimiter
@@ -84,16 +84,6 @@ func (d *Delegate) ServicesForSpec(ctx context.Context, spec job.Job) ([]job.Ser
 	return []job.ServiceCtx{engine}, nil
 }
 
-type noopSecretsFetcher struct{}
-
-func (n *noopSecretsFetcher) SecretsFor(ctx context.Context, workflowOwner, hexWorkflowName, decodedWorkflowName, workflowID string) (map[string]string, error) {
-	return map[string]string{}, nil
-}
-
-func newNoopSecretsFetcher() *noopSecretsFetcher {
-	return &noopSecretsFetcher{}
-}
-
 func NewDelegate(
 	logger logger.Logger,
 	registry core.CapabilitiesRegistry,
@@ -101,11 +91,13 @@ func NewDelegate(
 	ratelimiter *ratelimiter.RateLimiter,
 ) *Delegate {
 	return &Delegate{
-		logger:         logger,
-		registry:       registry,
-		secretsFetcher: newNoopSecretsFetcher(),
-		store:          store,
-		ratelimiter:    ratelimiter,
+		logger:   logger,
+		registry: registry,
+		secretsFetcher: func(ctx context.Context, workflowOwner, hexWorkflowName, decodedWorkflowName, workflowID string) (map[string]string, error) {
+			return map[string]string{}, nil
+		},
+		store:       store,
+		ratelimiter: ratelimiter,
 	}
 }
 

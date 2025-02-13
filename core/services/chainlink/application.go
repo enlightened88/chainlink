@@ -75,6 +75,7 @@ import (
 	"github.com/smartcontractkit/chainlink/v2/core/services/vrf"
 	"github.com/smartcontractkit/chainlink/v2/core/services/webhook"
 	"github.com/smartcontractkit/chainlink/v2/core/services/workflows"
+	"github.com/smartcontractkit/chainlink/v2/core/services/workflows/artifacts"
 	"github.com/smartcontractkit/chainlink/v2/core/services/workflows/ratelimiter"
 	workflowstore "github.com/smartcontractkit/chainlink/v2/core/services/workflows/store"
 	"github.com/smartcontractkit/chainlink/v2/core/services/workflows/syncer"
@@ -198,6 +199,8 @@ type ApplicationOpts struct {
 	RetirementReportCache      llo.RetirementReportCache
 	LLOTransmissionReaper      services.ServiceCtx
 	NewOracleFactoryFn         standardcapabilities.NewOracleFactoryFn
+	FetcherFunc                artifacts.FetcherFunc
+	FetcherFactoryFn           compute.FetcherFactory
 }
 
 type Heartbeat struct {
@@ -698,7 +701,7 @@ type CREOpts struct {
 	CapabilitiesDispatcher  remotetypes.Dispatcher
 	CapabilitiesPeerWrapper p2ptypes.PeerWrapper
 
-	FetcherFunc      syncer.FetcherFunc
+	FetcherFunc      artifacts.FetcherFunc
 	FetcherFactoryFn compute.FetcherFactory
 }
 
@@ -814,7 +817,7 @@ func newCREServices(cscfg creServiceConfig) (*CREServices, error) {
 
 			if capCfg.WorkflowRegistry().Address() != "" {
 				lggr := globalLogger.Named("WorkflowRegistrySyncer")
-				var fetcherFunc syncer.FetcherFunc
+				var fetcherFunc artifacts.FetcherFunc
 				if opts.FetcherFunc == nil {
 					if gatewayConnectorWrapper == nil {
 						return nil, errors.New("unable to create workflow registry syncer without gateway connector")
@@ -839,23 +842,23 @@ func newCREServices(cscfg creServiceConfig) (*CREServices, error) {
 					return nil, fmt.Errorf("expected 1 key, got %d", len(keys))
 				}
 
-				eventHandler := syncer.NewEventHandler(
-					lggr,
-					syncer.NewWorkflowRegistryDS(ds, globalLogger),
+				artifactsStore := artifacts.NewStore(lggr, artifacts.NewWorkflowRegistryDS(ds, globalLogger),
 					fetcherFunc,
-					workflowstore.NewDBStore(ds, lggr, clockwork.NewRealClock()),
-					opts.CapabilitiesRegistry,
-					custmsg.NewLabeler(),
-					clockwork.NewRealClock(),
-					keys[0],
-					workflowRateLimiter,
-					syncer.WithMaxArtifactSize(
-						syncer.ArtifactConfig{
+					clockwork.NewRealClock(), keys[0], custmsg.NewLabeler(), artifacts.WithMaxArtifactSize(
+						artifacts.ArtifactConfig{
 							MaxBinarySize:  uint64(capCfg.WorkflowRegistry().MaxBinarySize()),
 							MaxSecretsSize: uint64(capCfg.WorkflowRegistry().MaxEncryptedSecretsSize()),
 							MaxConfigSize:  uint64(capCfg.WorkflowRegistry().MaxConfigSize()),
 						},
-					),
+					))
+
+				eventHandler := syncer.NewEventHandler(
+					lggr,
+					workflowstore.NewDBStore(ds, lggr, clockwork.NewRealClock()),
+					opts.CapabilitiesRegistry,
+					custmsg.NewLabeler(),
+					workflowRateLimiter,
+					artifactsStore,
 				)
 
 				globalLogger.Debugw("Creating WorkflowRegistrySyncer")

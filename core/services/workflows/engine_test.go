@@ -157,12 +157,6 @@ func newTestEngineWithYAMLSpec(t *testing.T, reg *coreCap.Registry, spec string,
 	return newTestEngine(t, reg, sdkSpec, opts...)
 }
 
-type mockSecretsFetcher struct{}
-
-func (s mockSecretsFetcher) SecretsFor(ctx context.Context, workflowOwner, hexWorkflowName, decodedWorkflowName, workflowID string) (map[string]string, error) {
-	return map[string]string{}, nil
-}
-
 // newTestEngine creates a new engine with some test defaults.
 func newTestEngine(t *testing.T, reg *coreCap.Registry, sdkSpec sdk.WorkflowSpec, opts ...func(c *Config)) (*Engine, *testHooks) {
 	initFailed := make(chan struct{})
@@ -203,9 +197,11 @@ func newTestEngine(t *testing.T, reg *coreCap.Registry, sdkSpec sdk.WorkflowSpec
 		onRateLimit: func(weid string) {
 			rateLimited <- weid
 		},
-		SecretsFetcher: mockSecretsFetcher{},
-		clock:          clock,
-		RateLimiter:    rl,
+		SecretsFetcher: func(ctx context.Context, workflowOwner, hexWorkflowName, decodedWorkflowName, workflowID string) (map[string]string, error) {
+			return map[string]string{}, nil
+		},
+		clock:       clock,
+		RateLimiter: rl,
 	}
 	for _, o := range opts {
 		o(&cfg)
@@ -1800,10 +1796,11 @@ func TestEngine_FetchesSecrets(t *testing.T) {
 			reg,
 			secretsWorkflow,
 			func(c *Config) {
-				c.SecretsFetcher = &mockFetcher{
-					retval: map[string]string{
+				c.SecretsFetcher = func(ctx context.Context, workflowOwner, hexWorkflowName, decodedWorkflowName,
+					workflowID string) (map[string]string, error) {
+					return map[string]string{
 						"fidelity": "aFidelitySecret",
-					},
+					}, nil
 				}
 			},
 		)
@@ -1860,9 +1857,9 @@ func TestEngine_CloseHappensOnlyIfWorkflowHasBeenRegistered(t *testing.T) {
 		reg,
 		secretsWorkflow,
 		func(c *Config) {
-			c.SecretsFetcher = &mockFetcher{
-				retval: map[string]string{},
-				retErr: errors.New("failed to fetch secrets XXX"),
+			c.SecretsFetcher = func(ctx context.Context, workflowOwner, hexWorkflowName, decodedWorkflowName,
+				workflowID string) (map[string]string, error) {
+				return map[string]string{}, errors.New("failed to fetch secrets XXX")
 			}
 		},
 	)
