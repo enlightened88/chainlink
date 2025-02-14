@@ -82,6 +82,7 @@ var plugins = map[string]plugin{
 		TokenDataEncoder:    ccipsolana.NewSolanaTokenDataEncoder(),
 		GasEstimateProvider: ccipsolana.NewGasEstimateProvider(),
 		RMNCrypto:           func(lggr logger.Logger) cciptypes.RMNCrypto { return nil },
+		PriceOnlyCommitFn:   consts.MethodCommitPriceOnly,
 	},
 }
 
@@ -98,6 +99,8 @@ type plugin struct {
 	TokenDataEncoder    cciptypes.TokenDataEncoder
 	GasEstimateProvider cciptypes.EstimateProvider
 	RMNCrypto           func(lggr logger.Logger) cciptypes.RMNCrypto
+	// PriceOnlyCommitFn optional method override for price only commit reports.
+	PriceOnlyCommitFn string
 }
 
 // pluginOracleCreator creates oracles that reference plugins running
@@ -346,6 +349,8 @@ func (i *pluginOracleCreator) createFactoryAndTransmitter(
 		transmitter = ocrimpls.NewCommitContractTransmitter(destChainWriter,
 			ocrtypes.Account(destFromAccounts[0]),
 			encodeOffRampAddr(config.Config.OfframpAddress, destChainFamily, false),
+			consts.MethodCommit,
+			plugins[chainFamily].PriceOnlyCommitFn,
 		)
 	} else if config.Config.PluginType == uint8(cctypes.PluginTypeCCIPExec) {
 		factory = execocr3.NewExecutePluginFactory(
