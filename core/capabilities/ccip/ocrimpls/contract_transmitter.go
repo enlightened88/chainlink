@@ -123,14 +123,23 @@ type commitTransmitter struct {
 func XXXNewContractTransmitterTestsOnly(
 	cw commontypes.ContractWriter,
 	fromAccount ocrtypes.Account,
+	contractName string,
+	method string,
 	offrampAddress string,
 	toCalldataFn ToCalldataFunc,
 ) ocr3types.ContractTransmitter[[]byte] {
+	wrappedToCalldataFunc := func(rawReportCtx [2][32]byte,
+		report ocr3types.ReportWithInfo[[]byte],
+		rs, ss [][32]byte,
+		vs [32]byte) (string, string, any, error) {
+		_, _, args, err := toCalldataFn(rawReportCtx, report, rs, ss, vs)
+		return contractName, method, args, err
+	}
 	return &commitTransmitter{
 		cw:             cw,
 		fromAccount:    fromAccount,
 		offrampAddress: offrampAddress,
-		toCalldataFn:   toCalldataFn,
+		toCalldataFn:   wrappedToCalldataFunc,
 	}
 }
 
