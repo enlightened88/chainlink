@@ -182,6 +182,18 @@ func evmChain(t *testing.T, numUsers int) EVMChain {
 	}
 }
 
+var SolanaProgramIDs = map[string]string{
+	"ccip_router":               solTestConfig.CcipRouterProgram.String(),
+	"test_token_pool":           solTestConfig.CcipTokenPoolProgram.String(),
+	"fee_quoter":                solTestConfig.FeeQuoterProgram.String(),
+	"test_ccip_receiver":        solTestConfig.CcipLogicReceiver.String(),
+	"ccip_offramp":              solTestConfig.CcipOfframpProgram.String(),
+	"mcm":                       solTestConfig.McmProgram.String(),
+	"timelock":                  solTestConfig.TimelockProgram.String(),
+	"access_controller":         solTestConfig.AccessControllerProgram.String(),
+	"external_program_cpi_stub": solTestConfig.ExternalCpiStubProgram.String(),
+}
+
 var once = &sync.Once{}
 
 func solChain(t *testing.T, chainID uint64, adminKey *solana.PrivateKey) (string, string, error) {
@@ -196,12 +208,9 @@ func solChain(t *testing.T, chainID uint64, adminKey *solana.PrivateKey) (string
 	for i := 0; i < maxRetries; i++ {
 		port := freeport.GetOne(t)
 
-		programIds := map[string]string{
-			"ccip_router":        solTestConfig.CcipRouterProgram.String(),
-			"test_token_pool":    solTestConfig.CcipTokenPoolProgram.String(),
-			"fee_quoter":         solTestConfig.FeeQuoterProgram.String(),
-			"test_ccip_receiver": solTestConfig.CcipLogicReceiver.String(),
-			"ccip_offramp":       solTestConfig.CcipOfframpProgram.String(),
+		image := ""
+		if runtime.GOOS == "linux" {
+			image = "solanalabs/solana:v1.18.26" // TODO: workaround on linux
 		}
 
 		image := ""
@@ -216,7 +225,7 @@ func solChain(t *testing.T, chainID uint64, adminKey *solana.PrivateKey) (string
 			PublicKey:      adminKey.PublicKey().String(),
 			Port:           strconv.Itoa(port),
 			ContractsDir:   ProgramsPath,
-			SolanaPrograms: programIds,
+			SolanaPrograms: SolanaProgramIDs,
 		}
 		output, err := blockchain.NewBlockchainNetwork(bcInput)
 		if err != nil {
