@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/gagliardetto/solana-go"
 
 	solOffRamp "github.com/smartcontractkit/chainlink-ccip/chains/solana/gobindings/ccip_offramp"
@@ -115,12 +116,13 @@ func doAddRemoteChainToSolana(
 		case chainsel.FamilySolana:
 			return fmt.Errorf("support for solana chain as remote chain is not implemented yet %d", remoteChainSel)
 		case chainsel.FamilyEVM:
-			onRampAddress := s.Chains[remoteChainSel].OnRamp.Address().String()
-			if onRampAddress == "" {
+			onRampAddress := s.Chains[remoteChainSel].OnRamp.Address()
+			zeroAddress := common.Address{}
+			if onRampAddress == zeroAddress {
 				return fmt.Errorf("onramp address not found for chain %d", remoteChainSel)
 			}
-			addressBytes := []byte(onRampAddress)
-			copy(onRampBytes[:], addressBytes)
+			padded := common.LeftPadBytes(onRampAddress.Bytes(), 64)
+			copy(onRampBytes[:], padded)
 		}
 
 		// verified while loading state
