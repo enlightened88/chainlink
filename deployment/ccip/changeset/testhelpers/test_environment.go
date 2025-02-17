@@ -10,6 +10,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
+	solanago "github.com/gagliardetto/solana-go"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zapcore"
 
@@ -21,6 +22,7 @@ import (
 	commonconfig "github.com/smartcontractkit/chainlink-common/pkg/config"
 
 	"github.com/smartcontractkit/chainlink-ccip/chainconfig"
+	"github.com/smartcontractkit/chainlink-ccip/pkg/types/ccipocr3"
 	cciptypes "github.com/smartcontractkit/chainlink-ccip/pkg/types/ccipocr3"
 	"github.com/smartcontractkit/chainlink-ccip/pluginconfig"
 
@@ -669,10 +671,15 @@ func AddCCIPContractsToEnvironment(t *testing.T, allChains []uint64, tEnv TestEn
 	}
 
 	for _, chain := range solChains {
+		// TODO: this is a workaround for tokenConfig.GetTokenInfo
+		tokenInfo := map[ccipocr3.UnknownEncodedAddress]pluginconfig.TokenInfo{}
+		tokenInfo[ccipocr3.UnknownEncodedAddress(state.SolChains[chain].LinkToken.String())] = tokenConfig.TokenSymbolToInfo[changeset.LinkSymbol]
+		// TODO: point this to proper SOL feed, apparently 0 signified SOL
+		tokenInfo[ccipocr3.UnknownEncodedAddress(solanago.SolMint.String())] = tokenConfig.TokenSymbolToInfo[changeset.WethSymbol]
+
 		ocrOverride := tc.OCRConfigOverride
 		ocrParams := changeset.DeriveCCIPOCRParams(
-			// TODO: tokenInfo is nil for solana
-			changeset.WithDefaultCommitOffChainConfig(e.FeedChainSel, nil),
+			changeset.WithDefaultCommitOffChainConfig(e.FeedChainSel, tokenInfo),
 			changeset.WithDefaultExecuteOffChainConfig(tokenDataProviders),
 			changeset.WithOCRParamOverride(ocrOverride),
 		)

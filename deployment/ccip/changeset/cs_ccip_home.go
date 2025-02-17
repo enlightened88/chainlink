@@ -13,6 +13,7 @@ import (
 	"github.com/smartcontractkit/ccip-owner-contracts/pkg/gethwrappers"
 	"github.com/smartcontractkit/ccip-owner-contracts/pkg/proposal/mcms"
 	"github.com/smartcontractkit/ccip-owner-contracts/pkg/proposal/timelock"
+	chain_selectors "github.com/smartcontractkit/chain-selectors"
 	"golang.org/x/exp/maps"
 
 	"github.com/smartcontractkit/chainlink-common/pkg/config"
@@ -70,6 +71,16 @@ func validateCommitOffchainConfig(c *pluginconfig.CommitOffchainConfig, selector
 	if err := c.Validate(); err != nil {
 		return fmt.Errorf("invalid commit off-chain config: %w", err)
 	}
+
+	family, err := chain_selectors.GetSelectorFamily(selector)
+	if err != nil {
+		return err
+	}
+	if family != chain_selectors.FamilyEVM {
+		// TODO: implement more proper validation
+		return nil
+	}
+
 	for tokenAddr, tokenConfig := range c.TokenInfo {
 		tokenUnknownAddr, err := ccipocr3.NewUnknownAddressFromHex(string(tokenAddr))
 		if err != nil {
