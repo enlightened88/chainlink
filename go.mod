@@ -80,13 +80,13 @@ require (
 	github.com/smartcontractkit/chainlink-ccip/chains/solana v0.0.0-20250214202341-4190f2db1c01
 	github.com/smartcontractkit/chainlink-common v0.4.2-0.20250214231858-f365e2bdecea
 	github.com/smartcontractkit/chainlink-data-streams v0.1.1-0.20250128203428-08031923fbe5
-	github.com/smartcontractkit/chainlink-feeds v0.1.1
+	github.com/smartcontractkit/chainlink-feeds v0.1.2-0.20250219141116-fd6510959652
 	github.com/smartcontractkit/chainlink-framework/chains v0.0.0-20250207205350-420ccacab78a
 	github.com/smartcontractkit/chainlink-framework/multinode v0.0.0-20250211162441-3d6cea220efb
 	github.com/smartcontractkit/chainlink-integrations/evm v0.0.0-20250213145514-41d874782c02
 	github.com/smartcontractkit/chainlink-protos/orchestrator v0.4.0
 	github.com/smartcontractkit/chainlink-solana v1.1.2-0.20250213203720-e15b1333a14a
-	github.com/smartcontractkit/libocr v0.0.0-20241223215956-e5b78d8e3919
+	github.com/smartcontractkit/libocr v0.0.0-20250217133914-d53faacbc4b0
 	github.com/smartcontractkit/tdh2/go/ocr2/decryptionplugin v0.0.0-20241009055228-33d0c0bf38de
 	github.com/smartcontractkit/tdh2/go/tdh2 v0.0.0-20241009055228-33d0c0bf38de
 	github.com/smartcontractkit/wsrpc v0.8.2
@@ -99,6 +99,7 @@ require (
 	github.com/unrolled/secure v1.13.0
 	github.com/urfave/cli v1.22.14
 	github.com/wk8/go-ordered-map/v2 v2.1.8
+	github.com/zeebo/assert v1.3.0
 	go.dedis.ch/fixbuf v1.0.3
 	go.dedis.ch/kyber/v3 v3.1.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin v0.49.0
@@ -198,7 +199,7 @@ require (
 	github.com/docker/go-connections v0.5.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/dvsekhvalnov/jose2go v1.7.0 // indirect
-	github.com/ethereum/c-kzg-4844 v1.0.0 // indirect
+	github.com/ethereum/c-kzg-4844 v1.0.3 // indirect
 	github.com/ethereum/go-verkle v0.2.2 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.8 // indirect

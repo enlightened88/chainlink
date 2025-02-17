@@ -39,7 +39,7 @@ require (
 	github.com/smartcontractkit/chainlink-solana v1.1.2-0.20250213203720-e15b1333a14a
 	github.com/smartcontractkit/chainlink-testing-framework/framework v0.4.7
 	github.com/smartcontractkit/chainlink-testing-framework/lib v1.50.22
-	github.com/smartcontractkit/libocr v0.0.0-20241223215956-e5b78d8e3919
+	github.com/smartcontractkit/libocr v0.0.0-20250217133914-d53faacbc4b0
 	github.com/smartcontractkit/mcms v0.10.0
 	github.com/stretchr/testify v1.10.0
 	github.com/testcontainers/testcontainers-go v0.35.0
@@ -160,7 +160,7 @@ require (
 	github.com/dvsekhvalnov/jose2go v1.7.0 // indirect
 	github.com/emicklei/go-restful/v3 v3.12.1 // indirect
 	github.com/esote/minmaxheap v1.0.0 // indirect
-	github.com/ethereum/c-kzg-4844 v1.0.0 // indirect
+	github.com/ethereum/c-kzg-4844 v1.0.3 // indirect
 	github.com/ethereum/go-verkle v0.2.2 // indirect
 	github.com/evanphx/json-patch/v5 v5.9.0 // indirect
 	github.com/exponent-io/jsonpath v0.0.0-20210407135951-1de76d718b3f // indirect
@@ -354,7 +354,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/smartcontractkit/chainlink-automation v0.8.1 // indirect
 	github.com/smartcontractkit/chainlink-data-streams v0.1.1-0.20250128203428-08031923fbe5 // indirect
-	github.com/smartcontractkit/chainlink-feeds v0.1.1 // indirect
+	github.com/smartcontractkit/chainlink-feeds v0.1.2-0.20250219141116-fd6510959652 // indirect
 	github.com/smartcontractkit/chainlink-framework/chains v0.0.0-20250207205350-420ccacab78a // indirect
 	github.com/smartcontractkit/chainlink-protos/orchestrator v0.4.0 // indirect
 	github.com/smartcontractkit/chainlink-protos/rmn/v1.6/go v0.0.0-20250131130834-15e0d4cde2a6 // indirect
