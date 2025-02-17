@@ -116,8 +116,10 @@ func (c *CommitPluginCodecV1) Decode(ctx context.Context, bytes []byte) (cciptyp
 		return cciptypes.CommitPluginReport{}, err
 	}
 
-	merkleRoots := []cciptypes.MerkleRootChain{
-		{
+	merkleRoots := make([]cciptypes.MerkleRootChain, 0, 1)
+	// if the merkle root is zeroed, ignore it
+	if commitReport.MerkleRoot.MerkleRoot != [32]byte{} {
+		merkleRoots = append(merkleRoots, cciptypes.MerkleRootChain{
 			ChainSel:      cciptypes.ChainSelector(commitReport.MerkleRoot.SourceChainSelector),
 			OnRampAddress: commitReport.MerkleRoot.OnRampAddress,
 			SeqNumsRange: cciptypes.NewSeqNumRange(
@@ -125,7 +127,7 @@ func (c *CommitPluginCodecV1) Decode(ctx context.Context, bytes []byte) (cciptyp
 				cciptypes.SeqNum(commitReport.MerkleRoot.MaxSeqNr),
 			),
 			MerkleRoot: commitReport.MerkleRoot.MerkleRoot,
-		},
+		})
 	}
 
 	tokenPriceUpdates := make([]cciptypes.TokenPrice, 0, len(commitReport.PriceUpdates.TokenPriceUpdates))
