@@ -144,6 +144,19 @@ func DestContractReaderConfig() (config.ContractReader, error) {
 										Prefix: []byte("reference_addresses"),
 									},
 								},
+								{
+									// this seems like a hack to extract both State and Config fields?
+									ChainSpecificName: "SourceChain",
+									ReadType:          config.Account,
+									PDADefinition: solanacodec.PDATypeDef{
+										Prefix: []byte("source_chain_state"),
+										Seeds:  []solanacodec.PDASeed{{Name: "NewChainSelector", Type: solanacodec.IdlType{AsString: solanacodec.IdlTypeU64}}},
+									},
+									InputModifications: codec.ModifiersConfig{&codec.RenameModifierConfig{Fields: map[string]string{"NewChainSelector": "SourceChainSelector"}}},
+									OutputModifications: codec.ModifiersConfig{
+										&codec.PropertyExtractorConfig{FieldName: "State"},
+									},
+								},
 							},
 						},
 					},
@@ -223,6 +236,23 @@ func DestContractReaderConfig() (config.ContractReader, error) {
 								Fields: map[string]string{
 									"DefaultTokenFeeUsdcents": "DefaultTokenFeeUSDCents",
 									"NetworkFeeUsdcents":      "NetworkFeeUSDCents",
+								},
+							},
+						},
+						MultiReader: &config.MultiReader{
+							ReuseParams: true,
+							Reads: []config.ReadDefinition{
+								{
+									// this seems like a hack to extract both State and Config fields?
+									ChainSpecificName: "DestChain",
+									PDADefinition: solanacodec.PDATypeDef{
+										Prefix: []byte("dest_chain"),
+										Seeds:  []solanacodec.PDASeed{{Name: "DestinationChainSelector", Type: solanacodec.IdlType{AsString: solanacodec.IdlTypeU64}}},
+									},
+									InputModifications: codec.ModifiersConfig{&codec.RenameModifierConfig{Fields: map[string]string{"DestinationChainSelector": "DestChainSelector"}}},
+									OutputModifications: codec.ModifiersConfig{
+										&codec.PropertyExtractorConfig{FieldName: "State"},
+									},
 								},
 							},
 						},
@@ -340,6 +370,7 @@ func SourceContractReaderConfig() (config.ContractReader, error) {
 						MultiReader: &config.MultiReader{
 							ReuseParams: true,
 							Reads: []config.ReadDefinition{
+								// this seems like a hack to extract both State and Config fields?
 								{
 									ChainSpecificName: "DestChain",
 									ReadType:          config.Account,
