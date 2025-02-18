@@ -2,7 +2,6 @@ package solana
 
 import (
 	"fmt"
-	"math/big"
 
 	"github.com/gagliardetto/solana-go"
 	"github.com/smartcontractkit/ccip-owner-contracts/pkg/proposal/timelock"
@@ -401,7 +400,7 @@ func deployChainContractsSolana(
 	externalExecutionConfigPDA, _, _ := solState.FindExternalExecutionConfigPDA(ccipRouterProgram)
 	externalTokenPoolsSignerPDA, _, _ := solState.FindExternalTokenPoolsSignerPDA(ccipRouterProgram)
 	feeBillingSignerPDA, _, _ := solState.FindFeeBillingSignerPDA(ccipRouterProgram)
-	// linkFqBillingConfigPDA, _, _ := solState.FindFqBillingTokenConfigPDA(chainState.LinkToken, feeQuoterAddress)
+	linkFqBillingConfigPDA, _, _ := solState.FindFqBillingTokenConfigPDA(chainState.LinkToken, feeQuoterAddress)
 	offRampReferenceAddressesPDA, _, _ := solState.FindOfframpReferenceAddressesPDA(offRampAddress)
 	offRampBillingSignerPDA, _, _ := solState.FindOfframpBillingSignerPDA(offRampAddress)
 
@@ -423,64 +422,64 @@ func deployChainContractsSolana(
 			feeBillingSignerPDA,
 			feeQuoterConfigPDA,
 			feeQuoterAddress,
-			// linkFqBillingConfigPDA,
+			linkFqBillingConfigPDA,
 		}); err != nil {
 		return fmt.Errorf("failed to extend lookup table: %w", err)
 	}
 
 	// Update so that the offchain address lookup table is set
-	e.ExistingAddresses.Merge(ab)
+	// e.ExistingAddresses.Merge(ab)
 
-	// Initialize fee quoter PDAs for tokens or updating the price will fail
-	// TODO: find a better place to do this, e.g. AddLane has some EVM code like this
-	value := [28]uint8{}
-	bigNum, _ := new(big.Int).SetString("19816680000000000000", 10)
-	bigNum.FillBytes(value[:])
-	_, err = AddBillingToken(
-		e,
-		BillingTokenConfig{
-			ChainSelector:    chain.Selector,
-			TokenPubKey:      chainState.LinkToken.String(), // TODO: why is this specified twice if it could be read from config
-			TokenProgramName: deployment.SPL2022Tokens,
-			Config: solFeeQuoter.BillingTokenConfig{
-				Enabled: true,
-				Mint:    chainState.LinkToken,
-				// TODO: DefaultSolPrice/ Default link price for Solana
-				UsdPerToken: solFeeQuoter.TimestampedPackedU224{
-					Value:     value,
-					Timestamp: int64(100),
-				},
-				PremiumMultiplierWeiPerEth: 100,
-			},
-		},
-	)
-	if err != nil {
-		return err
-	}
-	_, err = AddBillingToken(
-		e,
-		BillingTokenConfig{
-			ChainSelector:    chain.Selector,
-			TokenPubKey:      solana.SolMint.String(), // TODO: why is this specified twice if it could be read from config
-			TokenProgramName: deployment.SPLTokens,
-			Config: solFeeQuoter.BillingTokenConfig{
-				Enabled: true,
-				Mint:    solana.SolMint,
-				// TODO: DefaultSolPrice/ Default link price for Solana
-				UsdPerToken: solFeeQuoter.TimestampedPackedU224{
-					Value:     value,
-					Timestamp: int64(100),
-				},
-				PremiumMultiplierWeiPerEth: 100,
-			},
-		},
-	)
-	if err != nil {
-		return err
-	}
+	// // Initialize fee quoter PDAs for tokens or updating the price will fail
+	// // TODO: find a better place to do this, e.g. AddLane has some EVM code like this
+	// value := [28]uint8{}
+	// bigNum, _ := new(big.Int).SetString("19816680000000000000", 10)
+	// bigNum.FillBytes(value[:])
+	// _, err = AddBillingToken(
+	// 	e,
+	// 	BillingTokenConfig{
+	// 		ChainSelector:    chain.Selector,
+	// 		TokenPubKey:      chainState.LinkToken.String(), // TODO: why is this specified twice if it could be read from config
+	// 		TokenProgramName: deployment.SPL2022Tokens,
+	// 		Config: solFeeQuoter.BillingTokenConfig{
+	// 			Enabled: true,
+	// 			Mint:    chainState.LinkToken,
+	// 			// TODO: DefaultSolPrice/ Default link price for Solana
+	// 			UsdPerToken: solFeeQuoter.TimestampedPackedU224{
+	// 				Value:     value,
+	// 				Timestamp: int64(100),
+	// 			},
+	// 			PremiumMultiplierWeiPerEth: 100,
+	// 		},
+	// 	},
+	// )
+	// if err != nil {
+	// 	return err
+	// }
+	// _, err = AddBillingToken(
+	// 	e,
+	// 	BillingTokenConfig{
+	// 		ChainSelector:    chain.Selector,
+	// 		TokenPubKey:      solana.SolMint.String(), // TODO: why is this specified twice if it could be read from config
+	// 		TokenProgramName: deployment.SPLTokens,
+	// 		Config: solFeeQuoter.BillingTokenConfig{
+	// 			Enabled: true,
+	// 			Mint:    solana.SolMint,
+	// 			// TODO: DefaultSolPrice/ Default link price for Solana
+	// 			UsdPerToken: solFeeQuoter.TimestampedPackedU224{
+	// 				Value:     value,
+	// 				Timestamp: int64(100),
+	// 			},
+	// 			PremiumMultiplierWeiPerEth: 100,
+	// 		},
+	// 	},
+	// )
+	// if err != nil {
+	// 	return err
+	// }
 
-	// now remove addresses again so merge can succeed later
-	e.ExistingAddresses.Remove(ab)
+	// // now remove addresses again so merge can succeed later
+	// e.ExistingAddresses.Remove(ab)
 
 	return nil
 }

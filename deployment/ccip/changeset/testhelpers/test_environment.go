@@ -10,7 +10,6 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
-	solanago "github.com/gagliardetto/solana-go"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zapcore"
 
@@ -675,7 +674,7 @@ func AddCCIPContractsToEnvironment(t *testing.T, allChains []uint64, tEnv TestEn
 		tokenInfo := map[ccipocr3.UnknownEncodedAddress]pluginconfig.TokenInfo{}
 		tokenInfo[ccipocr3.UnknownEncodedAddress(state.SolChains[chain].LinkToken.String())] = tokenConfig.TokenSymbolToInfo[changeset.LinkSymbol]
 		// TODO: point this to proper SOL feed, apparently 0 signified SOL
-		tokenInfo[ccipocr3.UnknownEncodedAddress(solanago.SolMint.String())] = tokenConfig.TokenSymbolToInfo[changeset.WethSymbol]
+		tokenInfo[ccipocr3.UnknownEncodedAddress(state.SolChains[chain].WSOL.String())] = tokenConfig.TokenSymbolToInfo[changeset.WethSymbol]
 
 		ocrOverride := tc.OCRConfigOverride
 		ocrParams := changeset.DeriveCCIPOCRParams(
