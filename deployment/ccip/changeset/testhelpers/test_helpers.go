@@ -542,6 +542,7 @@ func AddLane(
 		}
 		changesets = append(changesets, evmChangesets...)
 	case chainsel.FamilySolana:
+		// TODO: value is unused, was it intended to be used with AddBillingToken?
 		value := [28]uint8{}
 		bigNum, ok := new(big.Int).SetString("19816680000000000000", 10)
 		require.True(t, ok)
