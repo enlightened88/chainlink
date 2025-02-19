@@ -28,23 +28,23 @@ func (c *CommitPluginCodecV1) Encode(ctx context.Context, report cciptypes.Commi
 	encoder := agbinary.NewBorshEncoder(&buf)
 	combinedRoots := report.BlessedMerkleRoots
 	combinedRoots = append(combinedRoots, report.UnblessedMerkleRoots...)
-	var merkleRoot cciptypes.MerkleRootChain
+	var mr *ccip_offramp.MerkleRoot
 	switch len(combinedRoots) {
 	case 0:
 		// price updates only, zero the root
 	case 1:
 		// valid
-		merkleRoot = combinedRoots[0]
+		merkleRoot := combinedRoots[0]
+		mr = &ccip_offramp.MerkleRoot{
+			SourceChainSelector: uint64(merkleRoot.ChainSel),
+			OnRampAddress:       merkleRoot.OnRampAddress,
+			MinSeqNr:            uint64(merkleRoot.SeqNumsRange.Start()),
+			MaxSeqNr:            uint64(merkleRoot.SeqNumsRange.End()),
+			MerkleRoot:          merkleRoot.MerkleRoot,
+		}
+
 	default:
 		return nil, fmt.Errorf("unexpected merkle root length in report: %d", len(combinedRoots))
-	}
-
-	mr := &ccip_offramp.MerkleRoot{
-		SourceChainSelector: uint64(merkleRoot.ChainSel),
-		OnRampAddress:       merkleRoot.OnRampAddress,
-		MinSeqNr:            uint64(merkleRoot.SeqNumsRange.Start()),
-		MaxSeqNr:            uint64(merkleRoot.SeqNumsRange.End()),
-		MerkleRoot:          merkleRoot.MerkleRoot,
 	}
 
 	tpu := make([]ccip_offramp.TokenPriceUpdate, 0, len(report.PriceUpdates.TokenPriceUpdates))
@@ -117,8 +117,8 @@ func (c *CommitPluginCodecV1) Decode(ctx context.Context, bytes []byte) (cciptyp
 	}
 
 	merkleRoots := make([]cciptypes.MerkleRootChain, 0, 1)
-	// if the merkle root is zeroed, ignore it
-	if commitReport.MerkleRoot.MerkleRoot != [32]byte{} {
+	// if the merkle root is nil, ignore it
+	if commitReport.MerkleRoot != nil {
 		merkleRoots = append(merkleRoots, cciptypes.MerkleRootChain{
 			ChainSel:      cciptypes.ChainSelector(commitReport.MerkleRoot.SourceChainSelector),
 			OnRampAddress: commitReport.MerkleRoot.OnRampAddress,
