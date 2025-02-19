@@ -29,7 +29,7 @@ func Test_DeviationFunctionDefinition(t *testing.T) {
 		t.Run("invalid string", func(t *testing.T) {
 			var d DeviationFunctionDefinition
 			err := d.UnmarshalJSON([]byte(`"invalid"`))
-			require.EqualError(t, err, "json: cannot unmarshal string into Go value of type map[string]interface {}")
+			require.EqualError(t, err, "failed to unmarshal deviation function definition: json: cannot unmarshal string into Go value of type map[string]interface {}")
 		})
 		t.Run("pendle - valid", func(t *testing.T) {
 			expiresAt := float64(13857541.0) + float64(time.Now().Unix())
@@ -39,12 +39,16 @@ func Test_DeviationFunctionDefinition(t *testing.T) {
 			f := d.Func()
 			require.NotNil(t, f)
 			// Test the actual deviation function behavior
-			assert.True(t, f(nil, 1e7, big.NewInt(0.187152977881070687*1e18), big.NewInt(0.160000000000000000*1e18)))
-			assert.False(t, f(nil, 1e7, big.NewInt(0.187152977881070687*1e18), big.NewInt(0.177777777777777777*1e18)))
+			deviates, err := f(nil, 1e7, big.NewInt(0.187152977881070687*1e18), big.NewInt(0.160000000000000000*1e18))
+			require.NoError(t, err)
+			assert.True(t, deviates)
+			deviates, err = f(nil, 1e7, big.NewInt(0.187152977881070687*1e18), big.NewInt(0.160000000000000000*1e18))
+			require.NoError(t, err)
+			assert.False(t, deviates)
 		})
 		t.Run("pendle - with multiplier", func(t *testing.T) {
 			var d DeviationFunctionDefinition
-			err := d.UnmarshalJSON([]byte(fmt.Sprintf(`{"type": "pendle", "expiresAt": 123456.890, "multiplier": "1000"}`, expiresAt)))
+			err := d.UnmarshalJSON([]byte(`{"type": "pendle", "expiresAt": 123456.890, "multiplier": "1000"}`))
 			require.NoError(t, err)
 		})
 	})
