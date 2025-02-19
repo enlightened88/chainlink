@@ -484,7 +484,7 @@ func getGlobalStateConfig(offrampProgramAddress string) chainwriter.Lookup {
 				{Static: []byte("state")},
 			},
 			IsSigner:   false,
-			IsWritable: false,
+			IsWritable: true,
 		},
 		Optional: true,
 	}
@@ -500,7 +500,7 @@ func getBillingTokenConfig(offrampProgramAddress string) chainwriter.Lookup {
 				{Dynamic: chainwriter.Lookup{AccountLookup: &chainwriter.AccountLookup{Location: "Info.TokenPrices.TokenID"}}},
 			},
 			IsSigner:   false,
-			IsWritable: false,
+			IsWritable: true,
 		},
 		Optional: true,
 	}
@@ -516,7 +516,7 @@ func getChainConfigGasPriceConfig(offrampProgramAddress string, destChainSelecto
 				{Static: destChainSelector},
 			},
 			IsSigner:   false,
-			IsWritable: false,
+			IsWritable: true,
 		},
 		Optional: true,
 	}
