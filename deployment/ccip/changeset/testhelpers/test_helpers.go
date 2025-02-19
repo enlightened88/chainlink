@@ -547,10 +547,6 @@ func AddLane(
 		bigNum, ok := new(big.Int).SetString("19816680000000000000", 10)
 		require.True(t, ok)
 		bigNum.FillBytes(value[:])
-		solStates, err := changeset.LoadOnchainStateSolana(e.Env)
-		require.NoError(t, err)
-		solState := solStates.SolChains[to]
-
 		solanaChangesets := []commoncs.ConfiguredChangeSet{
 			commoncs.Configure(
 				deployment.CreateLegacyChangeSet(changeset_solana.AddRemoteChainToSolana),
@@ -572,42 +568,6 @@ func AddLane(
 								ChainFamilySelector: [4]uint8{40, 18, 213, 44},
 							},
 						},
-					},
-				},
-			),
-			commoncs.Configure(
-				deployment.CreateLegacyChangeSet(changeset_solana.AddBillingToken),
-				changeset_solana.BillingTokenConfig{
-					ChainSelector:    to,
-					TokenPubKey:      solState.LinkToken.String(),
-					TokenProgramName: deployment.SPL2022Tokens,
-					Config: solFeeQuoter.BillingTokenConfig{
-						Enabled: true,
-						Mint:    solState.LinkToken,
-						// TODO: DefaultSolPrice/ Default link price for Solana
-						UsdPerToken: solFeeQuoter.TimestampedPackedU224{
-							Value:     value,
-							Timestamp: int64(100),
-						},
-						PremiumMultiplierWeiPerEth: 100,
-					},
-				},
-			),
-			commoncs.Configure(
-				deployment.CreateLegacyChangeSet(changeset_solana.AddBillingToken),
-				changeset_solana.BillingTokenConfig{
-					ChainSelector:    to,
-					TokenPubKey:      solState.WSOL.String(),
-					TokenProgramName: deployment.SPLTokens,
-					Config: solFeeQuoter.BillingTokenConfig{
-						Enabled: true,
-						Mint:    solState.WSOL,
-						// TODO: DefaultSolPrice/ Default link price for Solana
-						UsdPerToken: solFeeQuoter.TimestampedPackedU224{
-							Value:     value,
-							Timestamp: int64(100),
-						},
-						PremiumMultiplierWeiPerEth: 100,
 					},
 				},
 			),
