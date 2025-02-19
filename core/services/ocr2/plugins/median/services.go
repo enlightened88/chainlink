@@ -150,7 +150,7 @@ func NewMedianServices(ctx context.Context,
 
 	var deviationFunc libocr_median.DeviationFunc
 	if pluginConfig.DeviationFunc != nil {
-		deviationFunc = pluginConfig.DeviationFunc.Func()
+		deviationFunc = pluginConfig.DeviationFunc.Func(lggr)
 	}
 
 	if cmdName := env.MedianPlugin.Cmd.Get(); cmdName != "" {

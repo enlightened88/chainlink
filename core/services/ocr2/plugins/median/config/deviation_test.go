@@ -7,8 +7,10 @@ import (
 	"time"
 
 	"github.com/shopspring/decimal"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/zeebo/assert"
+
+	"github.com/smartcontractkit/chainlink/v2/core/logger"
 )
 
 type frozenTimeClock struct{}
@@ -36,13 +38,13 @@ func Test_DeviationFunctionDefinition(t *testing.T) {
 			var d DeviationFunctionDefinition
 			err := d.UnmarshalJSON([]byte(fmt.Sprintf(`{"type": "pendle", "expiresAt": %f}`, expiresAt)))
 			require.NoError(t, err)
-			f := d.Func()
+			f := d.Func(logger.TestLogger(t))
 			require.NotNil(t, f)
 			// Test the actual deviation function behavior
 			deviates, err := f(nil, 1e7, big.NewInt(0.187152977881070687*1e18), big.NewInt(0.160000000000000000*1e18))
 			require.NoError(t, err)
 			assert.True(t, deviates)
-			deviates, err = f(nil, 1e7, big.NewInt(0.187152977881070687*1e18), big.NewInt(0.160000000000000000*1e18))
+			deviates, err = f(nil, 1e7, big.NewInt(0.187152977881070687*1e18), big.NewInt(0.177777777777777777*1e18))
 			require.NoError(t, err)
 			assert.False(t, deviates)
 		})
@@ -163,9 +165,17 @@ func Test_PendleDeviationFunc(t *testing.T) {
 
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
+			var oldValS, newValS string
+			if tc.oldVal != nil {
+				oldValS = tc.oldVal.String()
+			}
+			if tc.newVal != nil {
+				newValS = tc.newVal.String()
+			}
+
 			clock := frozenTimeClock{}
 			expiresAt := float64(clock.Now().Unix()) + tc.expiresInSeconds
-			actual, err := makePendleDeviationFunc(expiresAt, clock, DefaultMultiplier)(nil, tc.thresholdPPB, tc.oldVal, tc.newVal)
+			actual, err := makePendleDeviationFunc(logger.TestLogger(t), expiresAt, clock, DefaultMultiplier)(nil, tc.thresholdPPB, tc.oldVal, tc.newVal)
 			if tc.err != "" {
 				require.EqualError(t, err, tc.err)
 			} else {
@@ -173,6 +183,14 @@ func Test_PendleDeviationFunc(t *testing.T) {
 				if actual != tc.expected {
 					t.Fatalf("expected %v, got %v", tc.expected, actual)
 				}
+			}
+
+			// Did not mutate passed args
+			if tc.oldVal != nil {
+				assert.Equal(t, oldValS, tc.oldVal.String())
+			}
+			if tc.newVal != nil {
+				assert.Equal(t, newValS, tc.newVal.String())
 			}
 		})
 	}

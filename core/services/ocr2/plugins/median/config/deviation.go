@@ -10,16 +10,18 @@ import (
 	"time"
 
 	"github.com/smartcontractkit/libocr/offchainreporting2/reportingplugin/median"
+
+	"github.com/smartcontractkit/chainlink/v2/core/logger"
 )
 
 var DefaultMultiplier = new(big.Int).SetInt64(1e18)
 
 type DeviationFunctionDefinition struct {
-	f median.DeviationFunc
+	f func(logger.Logger) median.DeviationFunc
 }
 
-func (d DeviationFunctionDefinition) Func() median.DeviationFunc {
-	return d.f
+func (d DeviationFunctionDefinition) Func(lggr logger.Logger) median.DeviationFunc {
+	return d.f(lggr)
 }
 
 // UnmarshalJSON  for DeviationFunctionDefinition expects a JSON object with a
@@ -55,7 +57,9 @@ func (d *DeviationFunctionDefinition) UnmarshalJSON(data []byte) error {
 			multiplier = DefaultMultiplier
 		}
 
-		d.f = makePendleDeviationFunc(expiresAt, SystemClock{}, multiplier)
+		d.f = func(lggr logger.Logger) median.DeviationFunc {
+			return makePendleDeviationFunc(lggr, expiresAt, SystemClock{}, multiplier)
+		}
 		return nil
 	default:
 		return fmt.Errorf("unsupported function type in deviation function definition: %s", typeVal)
@@ -78,7 +82,7 @@ func (SystemClock) Now() time.Time {
 //
 // NOTE: This is non-deterministic if clock.Now() is non-deterministic (the usual case)
 // expiresAt expected as float64 number of seconds since epoch
-func makePendleDeviationFunc(expiresAt float64, clock Clock, valMultiplier *big.Int) median.DeviationFunc {
+func makePendleDeviationFunc(lggr logger.Logger, expiresAt float64, clock Clock, valMultiplier *big.Int) median.DeviationFunc {
 	valMultiplierF := new(big.Float).SetInt(valMultiplier)
 	return func(ctx context.Context, thresholdPPB uint64, oldVal, newVal *big.Int) (bool, error) {
 		if oldVal == nil || newVal == nil {
@@ -90,7 +94,7 @@ func makePendleDeviationFunc(expiresAt float64, clock Clock, valMultiplier *big.
 		yearsToExpiration := (expiresAt - nowF64) / SecondsInYear
 
 		// Compute absolute difference |oldVal - newVal|
-		diff := newVal.Sub(newVal, oldVal)
+		diff := new(big.Int).Sub(newVal, oldVal)
 		diff.Abs(diff) // Take absolute value
 		// Convert big.Int to float64 for calculation
 		diffFloat := new(big.Float).SetInt(diff)
@@ -101,7 +105,10 @@ func makePendleDeviationFunc(expiresAt float64, clock Clock, valMultiplier *big.
 		// Compute logarithmic threshold
 		logThreshold := math.Log(1 + float64(thresholdPPB)/1e9)
 
+		deviates := (diffF64 * yearsToExpiration) > logThreshold
+
+		lggr.Debugw("PendleDeviationFunc", "valMultiplier", valMultiplier.String(), "expiresAt", expiresAt, "thresholdPPB", thresholdPPB, "oldVal", oldVal.String(), "newVal", newVal.String(), "nowF64", nowF64, "yearsToExpiration", yearsToExpiration, "diffF64", diffF64, "logThreshold", logThreshold, "diffF64*yearsToExpiration", diffF64*yearsToExpiration, "deviates", deviates)
 		// Return the comparison result
-		return (diffF64 * yearsToExpiration) > logThreshold, nil
+		return deviates, nil
 	}
 }
