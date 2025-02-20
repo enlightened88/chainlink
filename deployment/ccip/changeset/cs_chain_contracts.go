@@ -1095,7 +1095,7 @@ func UpdateOffRampSourcesChangeset(e deployment.Environment, cfg UpdateOffRampSo
 				IsEnabled:           update.IsEnabled,
 				// TODO: how would this work when the onRamp is nonEVM?
 				OnRamp: common.LeftPadBytes(onRamp.Address().Bytes(), 32),
-				IsRMNVerificationDisabled: update.IsRMNVerificationDisabled,
+				// IsRMNVerificationDisabled: update.IsRMNVerificationDisabled,
 			})
 		}
 		tx, err := offRamp.ApplySourceChainConfigUpdates(txOpts, args)

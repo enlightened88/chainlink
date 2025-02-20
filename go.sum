@@ -1006,8 +1006,6 @@ github.com/sirupsen/logrus v1.4.2/go.mod h1:tLMulIdttU9McNUspp0xgXVQah82FyeX6Mwd
 github.com/sirupsen/logrus v1.8.1/go.mod h1:yWOB1SBYBC5VeMP7gHvWumXLIWorT60ONWic61uBYv0=
 github.com/sirupsen/logrus v1.9.3 h1:dueUQJ1C2q9oE3F7wvmSGAaVtTmUizReu6fjN8uqzbQ=
 github.com/sirupsen/logrus v1.9.3/go.mod h1:naHLuLoDiP4jHNo9R0sCBMtWGeIprob74mVsIT4qYEQ=
-github.com/smartcontractkit/chain-selectors v1.0.40 h1:iLvvoZeehVq6/7F+zzolQLF0DF25d3mh+vsYeZQiSCE=
-github.com/smartcontractkit/chain-selectors v1.0.40/go.mod h1:xsKM0aN3YGcQKTPRPDDtPx2l4mlTN1Djmg0VVXV40b8=
 github.com/smartcontractkit/chainlink-automation v0.8.1 h1:sTc9LKpBvcKPc1JDYAmgBc2xpDKBco/Q4h4ydl6+UUU=
 github.com/smartcontractkit/chainlink-automation v0.8.1/go.mod h1:Iij36PvWZ6blrdC5A/nrQUBuf3MH3JvsBB9sSyc9W08=
 github.com/smartcontractkit/chainlink-ccip v0.0.0-20250207152018-27a940edbb09 h1:eQLVvVPKru0szeApqNymCOpLHNWnndllxaDUZhapF/A=
@@ -1022,10 +1020,8 @@ github.com/smartcontractkit/chainlink-feeds v0.1.1 h1:JzvUOM/OgGQA1sOqTXXl52R6An
 github.com/smartcontractkit/chainlink-feeds v0.1.1/go.mod h1:55EZ94HlKCfAsUiKUTNI7QlE/3d3IwTlsU3YNa/nBb4=
 github.com/smartcontractkit/chainlink-framework/chains v0.0.0-20250207205350-420ccacab78a h1:zllQ6pOs1T0oiDNK3EHr7ABy1zHp+2oxoCuVE/hK+uI=
 github.com/smartcontractkit/chainlink-framework/chains v0.0.0-20250207205350-420ccacab78a/go.mod h1:tHem58EihQh63kR2LlAOKDAs9Vbghf1dJKZRGy6LG8g=
-github.com/smartcontractkit/chainlink-framework/multinode v0.0.0-20250205171936-649f95193678 h1:3CWUXtDkNppMkXIsKZdDp1ZP2ELkZ3e33h3InZB7TRA=
-github.com/smartcontractkit/chainlink-framework/multinode v0.0.0-20250205171936-649f95193678/go.mod h1:4JqpgFy01LaqG1yM2iFTzwX3ZgcAvW9WdstBZQgPHzU=
-github.com/smartcontractkit/chainlink-integrations/evm v0.0.0-20250211093128-285968896406 h1:aOEqsgoTmdpTW7i1uIxtXNvVCpUDOEViTxpcPNaAe98=
-github.com/smartcontractkit/chainlink-integrations/evm v0.0.0-20250211093128-285968896406/go.mod h1:sCZR6tZ7O72RmDNC44VsfFToHr/JA/Td99S//wsDHn4=
+github.com/smartcontractkit/chainlink-framework/multinode v0.0.0-20250211162441-3d6cea220efb h1:LWijSyJ2lhppkFLN19EGsLHZXQ5wen2DEk1cyR0tV+o=
+github.com/smartcontractkit/chainlink-framework/multinode v0.0.0-20250211162441-3d6cea220efb/go.mod h1:4JqpgFy01LaqG1yM2iFTzwX3ZgcAvW9WdstBZQgPHzU=
 github.com/smartcontractkit/chainlink-protos/orchestrator v0.4.0 h1:ZBat8EBvE2LpSQR9U1gEbRV6PfAkiFdINmQ8nVnXIAQ=
 github.com/smartcontractkit/chainlink-protos/orchestrator v0.4.0/go.mod h1:m/A3lqD7ms/RsQ9BT5P2uceYY0QX5mIt4KQxT2G6qEo=
 github.com/smartcontractkit/chainlink-protos/svr v0.0.0-20250123084029-58cce9b32112 h1:c77Gi/APraqwbBO8fbd/5JY2wW+MSIpYg8Uma9MEZFE=
