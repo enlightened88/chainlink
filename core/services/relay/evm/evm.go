@@ -762,7 +762,7 @@ func (r *Relayer) NewLLOProvider(ctx context.Context, rargs commontypes.RelayArg
 		// It will be started/closed by the transmitter in its own lifecycle
 		// See: core/services/llo/cre/transmitter.go for how these options are
 		// used
-		var creTransmitterConfig *llocre.Config
+		var creTransmitterConfig *llocre.TransmitterConfig
 		// FIXME: The transmitter instantiation really ought to be moved out of
 		// the evm relay into llo package
 		// https://smartcontract-it.atlassian.net/browse/MERC-6847
