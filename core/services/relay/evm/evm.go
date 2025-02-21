@@ -756,13 +756,22 @@ func (r *Relayer) NewLLOProvider(ctx context.Context, rargs commontypes.RelayArg
 			}
 			clients[server.URL] = client
 		}
+		var creTransmitterConfig *llocre.TransmitterConfig
 		// TODO(@bolek): Create your transmitter config from pluginConfig here
 		// This should not start any services but should contain everything the
 		// service needs to start
 		// It will be started/closed by the transmitter in its own lifecycle
 		// See: core/services/llo/cre/transmitter.go for how these options are
 		// used
-		var creTransmitterConfig *llocre.TransmitterConfig
+		//
+		// e.g.
+		// if lloCfg.CapabilityTrigger != nil {
+		//     creTransmitterConfig = llocre.TransmitterConfig{
+		//         DonID: lloCfg.DonID,
+		//         // ... add your stuff here
+		//     }
+		// }
+		//
 		// FIXME: The transmitter instantiation really ought to be moved out of
 		// the evm relay into llo package
 		// https://smartcontract-it.atlassian.net/browse/MERC-6847
@@ -777,7 +786,7 @@ func (r *Relayer) NewLLOProvider(ctx context.Context, rargs commontypes.RelayArg
 				Cfg:            r.mercuryCfg.Transmitter(),
 				Clients:        clients,
 				FromAccount:    privKey.PublicKey,
-				DonID:          relayConfig.LLODONID,
+				DonID:          lloCfg.DonID,
 				ORM:            mercurytransmitter.NewORM(r.ds, relayConfig.LLODONID),
 			},
 			CRETransmitterConfig:  creTransmitterConfig,
