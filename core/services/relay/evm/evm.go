@@ -47,6 +47,7 @@ import (
 	"github.com/smartcontractkit/chainlink/v2/core/services/keystore"
 	"github.com/smartcontractkit/chainlink/v2/core/services/llo"
 	"github.com/smartcontractkit/chainlink/v2/core/services/llo/bm"
+	llocre "github.com/smartcontractkit/chainlink/v2/core/services/llo/cre"
 	"github.com/smartcontractkit/chainlink/v2/core/services/llo/grpc"
 	"github.com/smartcontractkit/chainlink/v2/core/services/llo/mercurytransmitter"
 	"github.com/smartcontractkit/chainlink/v2/core/services/ocr2/plugins/ccip"
@@ -755,6 +756,16 @@ func (r *Relayer) NewLLOProvider(ctx context.Context, rargs commontypes.RelayArg
 			}
 			clients[server.URL] = client
 		}
+		// TODO(@bolek): Create your transmitter config from pluginConfig here
+		// This should not start any services but should contain everything the
+		// service needs to start
+		// It will be started/closed by the transmitter in its own lifecycle
+		// See: core/services/llo/cre/transmitter.go for how these options are
+		// used
+		var creTransmitterConfig *llocre.Config
+		// FIXME: The transmitter instantiation really ought to be moved out of
+		// the evm relay into llo package
+		// https://smartcontract-it.atlassian.net/browse/MERC-6847
 		transmitter = llo.NewTransmitter(llo.TransmitterOpts{
 			Lggr:           lggr,
 			FromAccount:    fmt.Sprintf("%x", privKey.PublicKey), // NOTE: This may need to change if we support e.g. multiple tranmsmitters, to be a composite of all keys
@@ -769,6 +780,7 @@ func (r *Relayer) NewLLOProvider(ctx context.Context, rargs commontypes.RelayArg
 				DonID:          relayConfig.LLODONID,
 				ORM:            mercurytransmitter.NewORM(r.ds, relayConfig.LLODONID),
 			},
+			CRETransmitterConfig:  creTransmitterConfig,
 			RetirementReportCache: r.retirementReportCache,
 		})
 	}

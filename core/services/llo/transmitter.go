@@ -10,6 +10,7 @@ import (
 	ocrtypes "github.com/smartcontractkit/libocr/offchainreporting2plus/types"
 	"golang.org/x/sync/errgroup"
 
+	"github.com/smartcontractkit/chainlink/v2/core/services/llo/cre"
 	"github.com/smartcontractkit/chainlink/v2/core/services/llo/mercurytransmitter"
 
 	"github.com/smartcontractkit/chainlink-common/pkg/logger"
@@ -52,6 +53,7 @@ type TransmitterOpts struct {
 	VerboseLogging         bool
 	FromAccount            string
 	MercuryTransmitterOpts mercurytransmitter.Opts
+	CRETransmitterConfig   *cre.TransmitterConfig
 	RetirementReportCache  TransmitterRetirementReportCacheWriter
 }
 
@@ -59,6 +61,9 @@ type TransmitterOpts struct {
 func NewTransmitter(opts TransmitterOpts) Transmitter {
 	subTransmitters := []Transmitter{
 		mercurytransmitter.New(opts.MercuryTransmitterOpts),
+	}
+	if opts.CRETransmitterConfig != nil {
+		subTransmitters = append(subTransmitters, opts.CRETransmitterConfig.NewTransmitter(opts.Lggr))
 	}
 	return &transmitter{
 		services.StateMachine{},
